@@ -1,38 +1,78 @@
-import re
+import sys
+from operator import itemgetter
 
 
-almanac = open('day5_input.txt', 'r')
-seeds = []
-maps = []
-maps_counter = -1
+def map_seed(seed, mapped):
+    destination_starts, source_starts, _ = mapped
+    return destination_starts + seed - source_starts
 
-for line in almanac:
-    seed_pattern = re.compile(r'^seeds:')
-    if seed_pattern.match(line):
-        seeds = [int(num) for num in re.findall(r'\b\d+\b', line)]
-    elif line == '\n':
-        pass
-    elif line.endswith('map:\n'):
-        maps_counter += 1
-        maps.append([])
-    else:
-        map_list = line.split()
-        a = int(map_list[0])
-        b = int(map_list[1])
-        c = int(map_list[2])
-        maps[maps_counter].append((range(a, a + c), range(b, b + c)))
 
-seeds_pairs = []
+def map_seed_range(seed_range, map_ranges):
+    seed_ranges = []
+    seed_starts, seed_ends = seed_range[0], seed_range[1]
 
-for i in range(0, len(seeds), 2):
-    seeds_pairs.append(range(seeds[i], seeds[i] + seeds[i + 1]))
+    for mapped in map_ranges:
+        source_start, source_end = mapped[1], mapped[1] + mapped[2] - 1
+        overlap_starts = max(seed_starts, source_start)
+        overlap_ends = min(seed_ends, source_end)
 
-for mapped in maps:
-    for i in range(0, len(seeds)):
-        for tup in mapped:
-            if seeds[i] in tup[1]:
-                transform_seed = seeds[i] - tup[1].start
-                seeds[i] = tup[0].start + transform_seed
+        if overlap_ends >= overlap_starts:
+            if seed_starts <= overlap_starts - 1:
+                seed_ranges.append((seed_starts, overlap_starts - 1))
+
+            seed_ranges.append((map_seed(overlap_starts, mapped), map_seed(overlap_ends, mapped)))
+
+            if overlap_ends + 1 <= seed_ends:
+                seed_starts = overlap_ends +1
+            else:
+                seed_starts = sys.maxsize
                 break
 
-print(f'Part 1 answer: {min(seeds)}')
+    if seed_starts <= seed_ends:
+        seed_ranges.append((seed_starts, seed_ends))
+
+    return seed_ranges
+
+
+almanac = 'day5_input.txt'
+
+with open(almanac) as almanac:
+    seeds = list(map(int, almanac.readline().split()[1:]))
+    almanac.readline()
+    almanac.readline()
+    maps = []
+    map_ranges = []
+
+    for line in almanac:
+        if line == '\n':
+            map_ranges.sort(key=itemgetter(1))
+            maps.append(map_ranges)
+            map_ranges = []
+            next(almanac)
+        else:
+            map_ranges.append(tuple(map(int, line.split())))
+    if map_ranges:
+        map_ranges.sort(key=itemgetter(1))
+        maps.append(map_ranges)
+
+    seed_ranges = [(seeds[i], seeds[i] + seeds[i + 1] - 1) for i in range(0, len(seeds), 2)]
+
+lowest_location_part1 = sys.maxsize
+for seed in seeds:
+    for map_ranges in maps:
+        for destination_starts, source_starts, length in map_ranges:
+            if source_starts <= seed <= source_starts + length - 1:
+                seed = destination_starts + seed - source_starts
+                break
+    lowest_location_part1 = min(seed, lowest_location_part1)
+
+for map_ranges in maps:
+    new_seed_ranges = []
+    for seed_range in seed_ranges:
+        new_seed_ranges += map_seed_range(seed_range, map_ranges)
+    seed_ranges = new_seed_ranges
+
+lowest_location_part2 = min(seed_range[0] for seed_range in seed_ranges)
+
+print(f'Part 1 answer: {lowest_location_part1}')
+print(f'Part 2 answer: {lowest_location_part2}')
