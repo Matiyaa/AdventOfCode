@@ -1,6 +1,7 @@
 history = open('day9_input.txt', 'r')
 values = []
 
+
 def differences(val_list):
     new_list = [val_list]
     diff_list = []

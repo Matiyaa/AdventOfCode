@@ -23,7 +23,7 @@ def map_seed_range(seed_range, map_ranges):
             seed_ranges.append((map_seed(overlap_starts, mapped), map_seed(overlap_ends, mapped)))
 
             if overlap_ends + 1 <= seed_ends:
-                seed_starts = overlap_ends +1
+                seed_starts = overlap_ends + 1
             else:
                 seed_starts = sys.maxsize
                 break

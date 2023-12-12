@@ -15,6 +15,7 @@ def race_won(time, distance, time_held):
     else:
         return False
 
+
 ways_to_win_part1 = [0 for i in times]
 for i in range(len(times)):
     for j in range(times[i]):
@@ -26,5 +27,5 @@ for i in range(race_time):
     if race_won(race_time, race_distance, i):
         ways_to_win_part2 += 1
 
-print(f'Part 1 asnwer: {reduce(operator.mul, ways_to_win_part1, 1)}')
-print(f'Part 1 asnwer: {ways_to_win_part2}')
+print(f'Part 1 answer: {reduce(operator.mul, ways_to_win_part1, 1)}')
+print(f'Part 2 answer: {ways_to_win_part2}')

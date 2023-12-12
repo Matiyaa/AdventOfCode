@@ -16,8 +16,8 @@ for line in calibration_document:
     line = re.sub(r'eight', 'eight8eight', line)
     line = re.sub(r'nine', 'nine9nine', line)
 
-    numbers_part1 = re.findall('\d', line_part1)
-    numbers_part2 = re.findall('\d', line)
+    numbers_part1 = re.findall(r'\d', line_part1)
+    numbers_part2 = re.findall(r'\d', line)
 
     if len(numbers_part1) > 1:
         calibration_sum_part1 += int(numbers_part1[0] + numbers_part1[-1])
