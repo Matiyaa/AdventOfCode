@@ -1,11 +1,4 @@
-from functools import cache
-
-
 def main():
-    OPERATIONAL = '.'
-    DAMAGED = '#'
-    UNKNOWN = '?'
-
     cache = {}
 
     def count(config, nums):
